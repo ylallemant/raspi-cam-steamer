@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PiCam Stream</title>
+<!-- Bootstrap CSS -->
+<link href="/assets/bootstrap.min.css" rel="stylesheet">
+<style type="text/css">
+#stream {
+height: 99%;
+margin: 0px auto;
+display: block;
+margin-top: 20px;
+}
+</style>
+<!-- jQuery -->
+<script src="/assets/jquery.js"></script>
+<!-- Bootstrap JavaScript -->
+<script src="/assets/bootstrap.min.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+var imageLoading = null;
+
+// facking backpressure functionality
+function statusReset() {
+  clearTimeout(imageLoading);
+  imageLoading = null;
+}
+
+var socket = io();
+socket.on('liveStream', function(url) {
+if (imageLoading) {
+  return;
+}
+imageLoading = setTimeout(statusReset, 500);
+$('#stream').on('error', statusReset).attr('src', url).load(statusReset);
+$('#streamDownload').attr("href", url)
+    .attr("download", 'steam-' + Date.now() + '.jpg');
+$('.start').hide();
+});
+function startStream() {
+socket.emit('start-stream');
+$('.start').hide();
+}
+</script>
+</head>
+<body class="container">
+<h1 class="text-center">PiCam Stream
+</h1>
+
+<hr>
+<button type="button" id="" class="btn btn-info start" onclick="startStream()">Start Camera</button>
+<div class="row">
+<a href="" id="streamDownload"><img src="" id="stream"></a>
+<center><small>Click on frame to download image</small></center>
+</div>
+</body>
+</html>
